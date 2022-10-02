@@ -1,0 +1,16 @@
+{
+  "name": "start-working-with-mongoose",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "author": "Shohel",
+  "license": "ISC",
+  "dependencies": {
+    "mongodb": "^4.10.0",
+    "mongoose": "^6.6.2",
+    "nodemon": "^2.0.20"
+  }
+}
