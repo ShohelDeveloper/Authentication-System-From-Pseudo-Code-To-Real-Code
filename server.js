@@ -20,6 +20,57 @@ const database = mongoose.connect("mongodb+srv://ShohelRana:VD3aTF2Vkyiz6nfE@clu
 })
 
 
+app.post('/login',async(req,res,next) => {
+
+
+           const {email,password} = req.body
+
+           try{
+              const user = await User.findOne({email})
+
+              if(!user){
+                return res.status(400).json({message:'Invalid Credantial'})
+              }
+
+                   const isMatch =  await bcrypt.compare(password,user.password)
+             if(!isMatch){
+                return res.status(400).json({message:'Invalid Credantial'})
+              }
+
+              delete user._doc.password;
+              return res.status(200).json({message:'Login Successful',user})
+           } catch(e) {
+            next(e)
+           }
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.post('/register',async (req,res,next)=>{
 
     const {name,email,password} = req.body
