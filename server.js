@@ -1,11 +1,12 @@
 const express = require('express');
 const { default: mongoose } = require('mongoose');
-const User = require('./models/User')
-const bcrypt = require('bcryptjs')
+const authenticate = require('./middleware/authenticate')
+const routes = require('./routes')
+
 
 const app = express()
 app.use(express.json())
-
+app.use(routes)
 
 
 const database = mongoose.connect("mongodb+srv://ShohelRana:VD3aTF2Vkyiz6nfE@cluster0.82mknop.mongodb.net/?retryWrites=true&w=majority",{dbName:"register", useNewUrlParser: true, useUnifiedTopology: true})
@@ -20,90 +21,22 @@ const database = mongoose.connect("mongodb+srv://ShohelRana:VD3aTF2Vkyiz6nfE@clu
 })
 
 
-app.post('/login',async(req,res,next) => {
+app.get('/private',authenticate,async(req,res) => {
+    console.log('I am a user',req.user)
+    return res.status(200).json({message:'I am a Private Route'})
+})
 
-
-           const {email,password} = req.body
-
-           try{
-              const user = await User.findOne({email})
-
-              if(!user){
-                return res.status(400).json({message:'Invalid Credantial'})
-              }
-
-                   const isMatch =  await bcrypt.compare(password,user.password)
-             if(!isMatch){
-                return res.status(400).json({message:'Invalid Credantial'})
-              }
-
-              delete user._doc.password;
-              return res.status(200).json({message:'Login Successful',user})
-           } catch(e) {
-            next(e)
-           }
+app.get('/public',(req,res) => {
+    return res.status(200).json({message:'I am a Public Route'})
 })
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-app.post('/register',async (req,res,next)=>{
-
-    const {name,email,password} = req.body
-    //    if user is not defined name or emai or password
-        if(!name || !email || !password){
-            return res.status(404).json({message:'Invalid Data'})
-        }
-try{
-    // if user try to create a new but his email is same previous
-    let user = await User.findOne({email:email})
-   console.log(user);
-    if(user){
-        return res.status(400).json({message:'User Already Exists'});
-    }
- 
-   user = new User({name,email,password})
-
-// Hash
-   const salt = await bcrypt.genSalt(10)
-   const hash = await bcrypt.hash(password, salt)
-   user.password = hash
-
-    // user create account
-    const result = await User.create(user)
-    return res.status(201).json({message:"User Created Successfully",user})
-}catch(e){
-        next(e)
-}
-})
 // globally error handel
 app.use((err,req,res,next)=> {
     console.log(err)
-    res.status(500).json({message:"Server Error Occurred"})
+    const message = err.message ? err.message : 'Server Error Occurred'
+    const status = err.status ? err.status : 500
+    res.status(status).json({message})
 })
  app.get('/register',async(req,res)=> {
    const result = await User.find({})
