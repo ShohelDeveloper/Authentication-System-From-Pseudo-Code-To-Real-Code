@@ -52,7 +52,7 @@ const loginrService = async ({
 
     //    Generate & Return JWT
     return jwt.sign(user._doc, 'secret-key', {
-        expiresIn: '2h'
+        expiresIn: '12h'
     })
 
 }
